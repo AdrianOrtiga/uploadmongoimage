@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>uploader</title>
+</head>
+
+<body>
+  <a href="/images">Images</a><br>
+  <form method="POST" action="/profile-upload-single" enctype="multipart/form-data">
+    <div>
+      <label>Upload profile picture</label>
+      <input type="file" name="profile-file" required />
+    </div>
+    <div>
+      <input type="submit" value="Upload" />
+    </div>
+  </form>
+
+  <hr>
+
+  <form method="POST" action="/profile-upload-multiple" enctype="multipart/form-data">
+    <div>
+      <label>Upload multiple profile picture</label>
+      <input type="file" name="profile-files" required multiple />
+    </div>
+    <div>
+      <input type="submit" value="Upload" />
+    </div>
+  </form>
+
+</body>
+
+</html>
