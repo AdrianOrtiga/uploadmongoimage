@@ -8,7 +8,7 @@ const mongoose = require('mongoose')
 const ImageDB = require('./models/image')
 const { response } = require('express')
 const app = express()
-const port = 3000
+const port = process.env.PORT ? process.env.PORT : '8000'
 
 // mongodb connection
 mongoose.connect(process.env.DATABASE_URL)
