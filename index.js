@@ -6,7 +6,8 @@ const express = require('express')
 const multer = require('multer')
 const mongoose = require('mongoose')
 const ImageDB = require('./models/image')
-const { response } = require('express')
+const fs = require('fs')
+const path = require('path')
 const app = express()
 const port = process.env.PORT ? process.env.PORT : '3000'
 
@@ -16,19 +17,24 @@ const db = mongoose.connection
 db.on('error', (error) => console.log(error))
 db.once('open', () => console.log('Connected to Database'))
 
+const uploadFolderPath = process.env.UPLOADS_FOLDER_PATH === undefined ? 'uploadsdev' : process.env.UPLOADS_FOLDER_PATH
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './uploads')
+    cb(null, './' + uploadFolderPath)
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname)
+    const fileName = Date.now() + file.originalname
+
+    ensureDirectoryExistence(uploadFolderPath)
+
+    cb(null, fileName)
   }
 })
 const upload = multer({ storage: storage })
 
-
 app.use(express.static(__dirname + '/public'))
-app.use('/uploads', express.static('uploads'))
+app.use('/' + uploadFolderPath, express.static(uploadFolderPath))
 
 app.get('/images', async function (req, res) {
   try {
@@ -58,6 +64,7 @@ function createTable (images) {
 
 app.get('/delete/:id', getImage, async function (req, res) {
   try {
+    await fs.unlinkSync(res.image.imageInfo.path)
     await res.image.remove()
     res.redirect('/images')
   } catch (err) {
@@ -115,5 +122,15 @@ app.post('/profile-upload-multiple', upload.array('profile-files', 12), function
 function createImageElement (srcImage) {
   return `<img src="${srcImage}" /><br>`
 }
+
+function ensureDirectoryExistence (filePath) {
+  var dirname = path.dirname(filePath);
+  if (fs.existsSync(dirname)) {
+    return true;
+  }
+  ensureDirectoryExistence(dirname);
+  fs.mkdirSync(dirname);
+}
+
 
 app.listen(port, () => console.log(`Server running on port ${port}!`))
