@@ -94,7 +94,6 @@ app.post('/profile-upload-single', upload.single('profile-file'), async function
 
   try {
     const newImage = await image.save()
-    console.log(newImage.imageInfo)
 
     let response = '<a href="/">Home</a><br>'
     response += "Files uploaded successfully.<br>"
