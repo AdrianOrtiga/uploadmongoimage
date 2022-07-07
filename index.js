@@ -7,7 +7,6 @@ const multer = require('multer')
 const mongoose = require('mongoose')
 const ImageDB = require('./models/image')
 const fs = require('fs')
-const path = require('path')
 const app = express()
 const port = process.env.PORT ? process.env.PORT : '3000'
 
@@ -17,16 +16,16 @@ const db = mongoose.connection
 db.on('error', (error) => console.log(error))
 db.once('open', () => console.log('Connected to Database'))
 
-const uploadFolderPath = process.env.UPLOADS_FOLDER_PATH === undefined ? 'uploadsdev' : process.env.UPLOADS_FOLDER_PATH
+const uploadFolderName = process.env.UPLOADS_FOLDER_NAME === undefined ? 'uploadsdev' : process.env.UPLOADS_FOLDER_NAME
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './' + uploadFolderPath)
+    cb(null, './' + uploadFolderName)
   },
   filename: function (req, file, cb) {
     const fileName = Date.now() + file.originalname
 
-    ensureDirectoryExistence(uploadFolderPath)
+    ensureDirectoryExistence(uploadFolderName)
 
     cb(null, fileName)
   }
@@ -34,7 +33,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 app.use(express.static(__dirname + '/public'))
-app.use('/' + uploadFolderPath, express.static(uploadFolderPath))
+app.use('/' + uploadFolderName, express.static(uploadFolderName))
 
 app.get('/images', async function (req, res) {
   try {
@@ -123,14 +122,11 @@ function createImageElement (srcImage) {
   return `<img src="${srcImage}" /><br>`
 }
 
-function ensureDirectoryExistence (filePath) {
-  var dirname = path.dirname(filePath);
+function ensureDirectoryExistence (dirname) {
   if (fs.existsSync(dirname)) {
     return true;
   }
-  ensureDirectoryExistence(dirname);
   fs.mkdirSync(dirname);
 }
-
 
 app.listen(port, () => console.log(`Server running on port ${port}!`))
